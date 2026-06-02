@@ -6,11 +6,8 @@ const app = express();
 app.use(express.json());
 
 const db = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  port: process.env.PGPORT
+	connectionString: process.env.DATABASE_URL,
+	ssl: { rejectUnauthorized: false }
 });
 
 app.get("/api/:type", async (req, res) =>
@@ -54,7 +51,6 @@ app.post("/api/reserve/:type/:id", async (req, res) =>
 	}
 });
 
-app.listen(3000, () =>
-{
+app.listen(process.env.PORT || 3000, () => {
 	console.log("backend running");
 });
