@@ -6,9 +6,12 @@ const app = express();
 app.use(express.json());
 
 const db = new Pool({
-	connectionString: process.env.DATABASE_URL,
-	ssl: { rejectUnauthorized: false }
+connectionString: process.env.DATABASE_URL,
 });
+
+db.connect()
+    .then(() => console.log("PostgreSQL connected"))
+    .catch(err => console.error("PostgreSQL connection error:", err));
 
 app.get("/api/:type", async (req, res) =>
 {
@@ -51,6 +54,9 @@ app.post("/api/reserve/:type/:id", async (req, res) =>
 	}
 });
 
-app.listen(process.env.PORT || 3000, () => {
-	console.log("backend running");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () =>
+{
+	console.log(`backend running on port ${PORT}`);
 });
