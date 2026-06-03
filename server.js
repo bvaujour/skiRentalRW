@@ -26,6 +26,16 @@ app.get("/api/:type", async (req, res) =>
 	res.json(result.rows);
 });
 
+app.get("/health", async (req, res) => {
+    try {
+        await db.query("SELECT 1");
+        res.json({ status: "ok", db: "connected" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: "db error", error: err.message });
+    }
+});
+
 
 app.post("/api/reserve/:type/:id", async (req, res) =>
 {
