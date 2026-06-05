@@ -40,31 +40,20 @@ app.get("/health", async (req, res) => {
 });
 
 
-app.post("/api/reserve/:type/:id", async (req, res) =>
+app.post("/api/reserve", async (req, res) =>
 {
-	const { type, id } = req.params;
-	const allowed = ["ski", "boot", "stick"];
+	console.log(req.body);
 
-	if (!allowed.includes(type))
-		return res.status(400).json({ error: "invalid type" });
-	try
-	{
-		const result = await db.query("SELECT * FROM items WHERE type = $1 AND id = $2", [type, id]);
-		const item = result.rows[0];
+	const { ski_id, boot_id, stick_id } = req.body;
 
-		if (!item)
-			return res.status(404).json({ error: "not found" });
-		if (item.stock <= 0)
-			return res.status(400).json({ error: "out of stock" });
-		await db.query("UPDATE items SET stock = stock - 1 WHERE id = $1", [id]);
-		res.json({ success: true });
+	if (!ski_id || !boot_id || !stick_id)
+		return res.status(400).json({ error: "missing data" });
 
-	}
-	catch (err)
-	{
-		console.error(err);
-		res.status(500).json({ error: "server error" });
-	}
+	await db.query("UPDATE items SET stock = stock - 1 WHERE id = $1 AND stock > 0", [ski_id]);
+	await db.query("UPDATE items SET stock = stock - 1 WHERE id = $1 AND stock > 0", [boot_id]);
+	await db.query("UPDATE items SET stock = stock - 1 WHERE id = $1 AND stock > 0", [stick_id]);
+
+	res.json({ success: true });
 });
 
 const PORT = process.env.PORT || 3000;
